@@ -124,16 +124,72 @@ docker run -p 8080:8080 \
   course-management-system
 ```
 
-## Entity Overview
+## Entity Relationship Diagram (ERD)
 
 ```
-Instructor 1 --- * Course 1 --- * Enrollment * --- 1 Student
-                     (soft delete)        (grade, progress, status)
+                          ┌──────────────────────────┐
+                          │       INSTRUCTOR         │
+                          ├──────────────────────────┤
+                          │ PK  id            BIGINT │
+                          │     name          VARCHAR│
+                          │     email         VARCHAR│  (unique)
+                          │     bio           TEXT   │
+                          │     created_at    DATETIME│
+                          │     updated_at    DATETIME│
+                          └──────────┬───────────────┘
+                                     │ 1
+                                     │
+                                     │ *
+                          ┌──────────▼───────────────┐
+                          │         COURSE           │
+                          ├──────────────────────────┤
+                          │ PK  id            BIGINT │
+                          │ FK  instructor_id BIGINT │─── instructor.id
+                          │     title         VARCHAR│
+                          │     description   TEXT   │
+                          │     enrollment_start DATE│
+                          │     enrollment_end   DATE│
+                          │     created_at    DATETIME│
+                          │     updated_at    DATETIME│
+                          │     deleted       BOOLEAN│  (soft delete)
+                          └──────────┬───────────────┘
+                                     │ 1
+                                     │
+                          ┌──────────▼───────────────┐        ┌──────────────────────────┐
+                          │       ENROLLMENT         │        │         STUDENT          │
+                          ├──────────────────────────┤        ├──────────────────────────┤
+                          │ PK  id            BIGINT │        │ PK  id            BIGINT │
+                          │ FK  course_id     BIGINT │────────│     name          VARCHAR│
+                          │ FK  student_id    BIGINT │   ────▶ │     email         VARCHAR│ (unique)
+                          │     enrolled_on   DATE   │        │     phone         VARCHAR│
+                          │     grade         VARCHAR│        │     created_at    DATETIME│
+                          │     progress      INT    │        │     updated_at    DATETIME│
+                          │     status        ENUM   │        └──────────────────────────┘
+                          └──────────────────────────┘
+                          UNIQUE (course_id, student_id)
+
+
+   Relationship cardinality:
+   ────────────────────────────────────────────────────────────────────
+     INSTRUCTOR (1) ────< (many) COURSE
+     COURSE    (1) ────< (many) ENROLLMENT
+     STUDENT   (1) ────< (many) ENROLLMENT
+     ENROLLMENT       * --- *  (junction: COURSE *---* STUDENT)
+   ────────────────────────────────────────────────────────────────────
 ```
 
-- `Course` is soft-deleted (`deleted` flag + `@SQLRestriction`).
-- `Enrollment` has a unique constraint on `(student_id, course_id)`.
-- `EnrollmentStatus`: `ACTIVE`, `COMPLETED`, `DROPPED`.
+### Legend
+
+| Entity | Key Notes |
+|--------|-----------|
+| **Instructor** | Owns many `Course` records. Cannot be deleted while courses are assigned. |
+| **Course** | Belongs to one `Instructor`. Soft-deleted via `deleted` flag + `@SQLRestriction(deleted = false)`. Has a registration window (`enrollment_start` / `enrollment_end`). |
+| **Student** | Owns many `Enrollment` records. Duplicate emails are rejected. |
+| **Enrollment** | Junction entity linking `Course` and `Student`. Unique constraint on `(course_id, student_id)` prevents double enrollment. Tracks `grade`, `progress (0–100)`, and `status`. |
+
+- `EnrollmentStatus` enum: `ACTIVE`, `COMPLETED`, `DROPPED`.
+- `Course` is soft-deleted; enrolling into a deleted course is blocked (returns `ResourceNotFoundException`).
+- Foreign keys: `course.instructor_id → instructor.id`, `enrollment.course_id → course.id`, `enrollment.student_id → student.id`.
 
 ## Project Layout
 
