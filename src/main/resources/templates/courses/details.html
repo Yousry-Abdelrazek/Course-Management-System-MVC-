@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main :: layout('Course Details', 'courses', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/dashboard}"><i class="bi bi-house-door"></i></a></li>
+            <li class="breadcrumb-item"><a th:href="@{/courses}">Courses</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${course.title}">Title</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">
+            <span th:text="${course.title}">Title</span>
+            <span th:if="${course.deleted}" class="badge bg-danger ms-2">Deleted</span>
+        </h1>
+        <div class="d-flex gap-2">
+            <a th:href="@{/courses/{id}/edit(id=${course.id})}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+            <a th:href="@{/courses}" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9" th:text="${course.id}">1</dd>
+                <dt class="col-sm-3">Title</dt>
+                <dd class="col-sm-9" th:text="${course.title}">Title</dd>
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9" th:text="${course.description} ?: '—'">Desc</dd>
+                <dt class="col-sm-3">Price</dt>
+                <dd class="col-sm-9" th:text="'$' + ${#numbers.formatDecimal(course.price, 1, 2)}">$0.00</dd>
+                <dt class="col-sm-3">Instructor</dt>
+                <dd class="col-sm-9">
+                    <a th:if="${course.instructorId != null}" th:href="@{/instructors/{id}(id=${course.instructorId})}"
+                       th:text="${course.instructorName}" class="text-decoration-none">Instructor</a>
+                    <span th:if="${course.instructorId == null}">—</span>
+                </dd>
+                <dt class="col-sm-3">Start Date</dt>
+                <dd class="col-sm-9" th:text="${course.startDate} != null ? ${#temporals.format(course.startDate, 'dd MMM yyyy')} : '—'">—</dd>
+                <dt class="col-sm-3">End Date</dt>
+                <dd class="col-sm-9" th:text="${course.endDate} != null ? ${#temporals.format(course.endDate, 'dd MMM yyyy')} : '—'">—</dd>
+                <dt class="col-sm-3">Registration Window</dt>
+                <dd class="col-sm-9">
+                    <span th:if="${course.registrationStartTime == null and course.registrationEndTime == null}">Always open</span>
+                    <span th:unless="${course.registrationStartTime == null and course.registrationEndTime == null}">
+                        <span th:text="${course.registrationStartTime} != null ? ${#temporals.format(course.registrationStartTime, 'dd MMM yyyy HH:mm')} : 'any'">start</span>
+                        &rarr;
+                        <span th:text="${course.registrationEndTime} != null ? ${#temporals.format(course.registrationEndTime, 'dd MMM yyyy HH:mm')} : 'any'">end</span>
+                    </span>
+                    <span th:if="${course.registrationOpen}" class="badge bg-success ms-2">Open</span>
+                    <span th:unless="${course.registrationOpen}" class="badge bg-secondary ms-2">Closed</span>
+                </dd>
+                <dt class="col-sm-3">Enrollments</dt>
+                <dd class="col-sm-9"><span class="badge bg-info" th:text="${course.enrollmentCount}">0</span></dd>
+            </dl>
+        </div>
+    </div>
+
+</th:block>
+</body>
+</html>

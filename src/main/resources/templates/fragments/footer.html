@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="cms-footer text-muted small px-4 py-3 border-top">
+    <span>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> Course Management System &mdash; Built with Spring Boot MVC &amp; Thymeleaf</span>
+</footer>
+</body>
+</html>

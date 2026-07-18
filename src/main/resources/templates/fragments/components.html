@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- PAGINATION -->
+<div th:fragment="pagination(page, baseUrl, query)" th:if="${page.totalPages > 1}"
+     class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span class="text-muted small">
+        Showing page <span th:text="${page.number + 1}">1</span> of <span th:text="${page.totalPages}">1</span>
+        (<span th:text="${page.totalElements}">0</span> total)
+    </span>
+    <nav>
+        <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
+                <a class="page-link"
+                   th:href="@{${baseUrl}(page=${page.number - 1}, size=${page.size}, query=${query})}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                th:classappend="${i == page.number} ? 'active' : ''">
+                <a class="page-link"
+                   th:href="@{${baseUrl}(page=${i}, size=${page.size}, query=${query})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
+                <a class="page-link"
+                   th:href="@{${baseUrl}(page=${page.number + 1}, size=${page.size}, query=${query})}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- EMPTY STATE -->
+<div th:fragment="emptyState(icon, message, actionUrl, actionLabel)" class="text-center text-muted py-5">
+    <i th:class="'bi ' + ${icon} + ' display-4 d-block mb-3 opacity-50'"></i>
+    <p class="mb-3" th:text="${message}">No records found.</p>
+    <a th:if="${actionUrl != null}" th:href="${actionUrl}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i><span th:text="${actionLabel}">Add</span>
+    </a>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div th:fragment="confirmModal(id, title, body, action)" th:id="${id}" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="${title}">Confirm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" th:text="${body}">Are you sure?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="${action}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

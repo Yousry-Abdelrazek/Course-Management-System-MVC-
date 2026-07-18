@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main :: layout('Student Form', 'students', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/dashboard}"><i class="bi bi-house-door"></i></a></li>
+            <li class="breadcrumb-item"><a th:href="@{/students}">Students</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${student.id != null} ? 'Edit' : 'Create'">Create</li>
+        </ol>
+    </nav>
+
+    <h1 class="h3 mb-4" th:text="${student.id != null} ? 'Edit Student' : 'Create Student'">Create Student</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="${student.id != null} ? @{/students/{id}(id=${student.id})} : @{/students}"
+                  th:object="${student}" method="post" novalidate>
+
+                <div class="mb-3">
+                    <label class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{name}"
+                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Error</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" th:field="*{email}"
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Error</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Joined On</label>
+                    <input type="date" class="form-control" th:field="*{joinedOn}">
+                    <small class="text-muted">Leave empty to default to today.</small>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Save</button>
+                    <a th:href="@{/students}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</th:block>
+</body>
+</html>

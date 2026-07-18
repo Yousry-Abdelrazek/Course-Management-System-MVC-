@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main :: layout('Courses', 'courses', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/dashboard}"><i class="bi bi-house-door"></i></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Courses</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Courses</h1>
+        <a th:href="@{/courses/new}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>New Course</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/courses}" method="get" class="row g-2 mb-3">
+                <div class="col-md-6 col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="query" class="form-control" placeholder="Search by title" th:value="${query}">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        <a th:href="@{/courses}" class="btn btn-outline-secondary" th:if="${query}">Clear</a>
+                    </div>
+                </div>
+            </form>
+
+            <div th:if="${page.isEmpty()}"
+                 th:replace="~{fragments/components :: emptyState('bi-journal-x', 'No courses found.', @{/courses/new}, 'Add Course')}"></div>
+
+            <div th:unless="${page.isEmpty()}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th><a class="sortable" th:href="@{/courses(sort='title,asc', query=${query})}">Title <i class="bi bi-arrow-down-up small"></i></a></th>
+                        <th>Instructor</th>
+                        <th><a class="sortable" th:href="@{/courses(sort='price,asc', query=${query})}">Price <i class="bi bi-arrow-down-up small"></i></a></th>
+                        <th class="text-center">Registration</th>
+                        <th class="text-center">Enrolled</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${page.content}">
+                        <td><a th:href="@{/courses/{id}(id=${c.id})}" th:text="${c.title}" class="text-decoration-none fw-medium">Title</a></td>
+                        <td th:text="${c.instructorName} ?: '—'">—</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(c.price, 1, 2)}">$0.00</td>
+                        <td class="text-center">
+                            <span th:if="${c.registrationOpen}" class="badge bg-success">Open</span>
+                            <span th:unless="${c.registrationOpen}" class="badge bg-secondary">Closed</span>
+                        </td>
+                        <td class="text-center"><span class="badge bg-info" th:text="${c.enrollmentCount}">0</span></td>
+                        <td class="text-end">
+                            <a th:href="@{/courses/{id}(id=${c.id})}" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
+                            <a th:href="@{/courses/{id}/edit(id=${c.id})}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                                    data-bs-toggle="modal" th:data-bs-target="'#delModal' + ${c.id}"><i class="bi bi-trash"></i></button>
+                            <div th:replace="~{fragments/components :: confirmModal('delModal' + ${c.id}, 'Delete Course', 'Soft-delete course ' + ${c.title} + '?', @{/courses/{id}/delete(id=${c.id})})}"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:unless="${page.isEmpty()}" class="mt-3"
+                 th:replace="~{fragments/components :: pagination(${page}, '/courses', ${query})}"></div>
+        </div>
+    </div>
+
+</th:block>
+</body>
+</html>

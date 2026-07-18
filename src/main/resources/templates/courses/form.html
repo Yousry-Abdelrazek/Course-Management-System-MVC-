@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main :: layout('Course Form', 'courses', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/dashboard}"><i class="bi bi-house-door"></i></a></li>
+            <li class="breadcrumb-item"><a th:href="@{/courses}">Courses</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${course.id != null} ? 'Edit' : 'Create'">Create</li>
+        </ol>
+    </nav>
+
+    <h1 class="h3 mb-4" th:text="${course.id != null} ? 'Edit Course' : 'Create Course'">Create Course</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="${course.id != null} ? @{/courses/{id}(id=${course.id})} : @{/courses}"
+                  th:object="${course}" method="post" novalidate>
+
+                <div class="mb-3">
+                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{title}"
+                           th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Error</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="3" th:field="*{description}"
+                              th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"></textarea>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Error</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Price <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" step="0.01" class="form-control" th:field="*{price}"
+                                   th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">Error</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Instructor</label>
+                        <select class="form-select" th:field="*{instructorId}">
+                            <option th:value="null">— Unassigned —</option>
+                            <option th:each="i : ${instructors}" th:value="${i.id}" th:text="${i.name}">Instructor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" th:field="*{startDate}"
+                               th:classappend="${#fields.hasErrors('startDate')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}">Error</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" th:field="*{endDate}"
+                               th:classappend="${#fields.hasErrors('endDate')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}">Error</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Registration Start</label>
+                        <input type="datetime-local" class="form-control" th:field="*{registrationStartTime}"
+                               th:classappend="${#fields.hasErrors('registrationStartTime')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('registrationStartTime')}" th:errors="*{registrationStartTime}">Error</div>
+                        <small class="text-muted">Leave both registration fields empty to keep the course always open.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Registration End</label>
+                        <input type="datetime-local" class="form-control" th:field="*{registrationEndTime}"
+                               th:classappend="${#fields.hasErrors('registrationEndTime')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('registrationEndTime')}" th:errors="*{registrationEndTime}">Error</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Save</button>
+                    <a th:href="@{/courses}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</th:block>
+</body>
+</html>

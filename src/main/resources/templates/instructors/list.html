@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main :: layout('Instructors', 'instructors', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/dashboard}"><i class="bi bi-house-door"></i></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Instructors</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Instructors</h1>
+        <a th:href="@{/instructors/new}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>New Instructor
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/instructors}" method="get" class="row g-2 mb-3">
+                <div class="col-md-6 col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="query" class="form-control"
+                               placeholder="Search by name or email" th:value="${query}">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        <a th:href="@{/instructors}" class="btn btn-outline-secondary" th:if="${query}">Clear</a>
+                    </div>
+                </div>
+            </form>
+
+            <div th:if="${page.isEmpty()}"
+                 th:replace="~{fragments/components :: emptyState('bi-person-x', 'No instructors found.', @{/instructors/new}, 'Add Instructor')}"></div>
+
+            <div th:unless="${page.isEmpty()}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th><a class="sortable" th:href="@{/instructors(sort='name,asc', query=${query})}">Name <i class="bi bi-arrow-down-up small"></i></a></th>
+                        <th><a class="sortable" th:href="@{/instructors(sort='email,asc', query=${query})}">Email <i class="bi bi-arrow-down-up small"></i></a></th>
+                        <th class="text-center">Courses</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="i : ${page.content}">
+                        <td>
+                            <a th:href="@{/instructors/{id}(id=${i.id})}" th:text="${i.name}" class="text-decoration-none fw-medium">Name</a>
+                        </td>
+                        <td th:text="${i.email}">email</td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary" th:text="${i.courseCount}">0</span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/instructors/{id}(id=${i.id})}" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
+                            <a th:href="@{/instructors/{id}/edit(id=${i.id})}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                                    data-bs-toggle="modal" th:data-bs-target="'#delModal' + ${i.id}"><i class="bi bi-trash"></i></button>
+                            <div th:replace="~{fragments/components :: confirmModal('delModal' + ${i.id}, 'Delete Instructor', 'Are you sure you want to delete ' + ${i.name} + '?', @{/instructors/{id}/delete(id=${i.id})})}"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:unless="${page.isEmpty()}" class="mt-3"
+                 th:replace="~{fragments/components :: pagination(${page}, '/instructors', ${query})}"></div>
+        </div>
+    </div>
+
+</th:block>
+</body>
+</html>
